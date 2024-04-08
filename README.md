@@ -13,7 +13,7 @@ To run this project, you need:
 - Python 3 installed on your system.
 - A Kiwi API key for accessing the Flight Search API.
 - A Google Sheets API key for accessing the Google Sheet with flight data.
-- Twilio API credentials for sending SMS notifications.
+- Telegram API credentials for sending message notifications.
 
 ## Setup
 
