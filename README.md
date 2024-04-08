@@ -13,7 +13,7 @@ To run this project, you need:
 - Python 3 installed on your system.
 - A Kiwi API key for accessing the Flight Search API.
 - A Google Sheets API key for accessing the Google Sheet with flight data.
-- Twilio API credentials for sending SMS notifications.
+- Telegram API credentials for sending message notifications.
 
 ## Setup
 
@@ -25,11 +25,11 @@ To run this project, you need:
 3. Set up your environment variables by creating a .env file in the root directory of the project and adding the necessary API keys and credentials:
 
    ```bash
-    KIWI_API_KEY=your_kiwi_api_key
-    GOOGLE_SHEET_API_KEY=your_google_sheet_api_key
-    TWILIO_ACCOUNT_SID=your_twilio_account_sid
-    TWILIO_AUTH_TOKEN=your_twilio_auth_token
-    TWILIO_PHONE_NUMBER=your_twilio_phone_number
+    KIWI_API_KEY=your_kiwi_key
+    SHEETY_TOKEN=your_sheety_token
+    SHEETY_ENDPOINT=your_sheety_endpoint
+    TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+    TELEGRAM_CHAT_ID=your_chat_id
 
 ## Usage
 1. Modify the main.py script with your desired settings, such as the departure city code, nights in destination, and any other parameters.
