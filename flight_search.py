@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import requests
 import os
 from dotenv import load_dotenv
@@ -31,7 +33,7 @@ class FlightSearch:
         return city_code
 
     def check_flights(self, from_city_code, to_city_code, from_date, to_date, nights_from,
-                      nights_to):
+                      nights_to, default_stop_over):
         search_endpoint = f"{TEQUILA_ENDPOINT}/search"
         headers = {"apikey": KIWI_API_KEY}
         query = {
@@ -42,31 +44,53 @@ class FlightSearch:
             "nights_in_dst_from": nights_from,
             "nights_in_dst_to": nights_to,
             "one_for_city": 1,
-            "max_stopovers": 0,
+            "max_sector_stopovers": default_stop_over,
             "currency": "USD",
         }
 
         # print the city and price for all the cities in terminal
+        # https://tequila.kiwi.com/portal/docs/user_guides/important_search_api_response_fields
+        response = requests.get(search_endpoint, headers=headers, params=query)
         try:
-            # https://tequila.kiwi.com/portal/docs/user_guides/important_search_api_response_fields
-            response = requests.get(search_endpoint, headers=headers, params=query)
             data = response.json()["data"][0]
-            # print(data)
+            # pprint(data)
         except IndexError:
-            print(f"No itinerary found for {to_city_code}.")
-            return None
-
-        flight_data = FlightData(
-            from_city=data["route"][0]["cityFrom"],
-            from_code=data["route"][0]["flyFrom"],
-            to_city=data["route"][0]["cityTo"],
-            to_code=data["route"][0]["flyTo"],
-            # convert epoch time to human readable https://www.geeksforgeeks.org/convert-epoch-time-to-date-time-in-python/#google_vignette
-            from_date=time.strftime("%Y-%m-%d", time.gmtime(data["route"][0]["dTime"])),
-            to_date=time.strftime("%Y-%m-%d", time.gmtime(data["route"][1]["dTime"])),
-            price=data["price"],
-        )
-        print(f"{flight_data.to_city}: ${flight_data.price}")
-        # print(flight_data)
-        return flight_data
-
+            # update max stopover to 1 per one direction, and try again
+            query["max_sector_stopovers"] = 1
+            response = requests.get(search_endpoint, headers=headers, params=query)
+            try:  # nested try/except if nothing within 1 stopover
+                data = response.json()["data"][0]
+                # pprint(data)
+            except IndexError:
+                print(f"No itinerary found for this query.")
+                return None
+            else:
+                num_of_stopover = query["max_sector_stopovers"]
+                stopover_city = data["route"][0]["cityTo"] if num_of_stopover > 0 else ""
+                flight_data = FlightData(
+                    origin_city=data["route"][0]["cityFrom"],
+                    origin_airport_code=data["route"][0]["flyFrom"],
+                    dest_city=data["route"][1]["cityTo"],  # to_city is now on the 2nd element
+                    dest_airport_code=data["route"][1]["flyTo"],
+                    # convert epoch time to human readable
+                    outbound_date=time.strftime("%Y-%m-%d", time.gmtime(data["route"][0]["dTime"])),
+                    return_date=time.strftime("%Y-%m-%d", time.gmtime(data["route"][2]["dTime"])),
+                    price=data["price"],
+                    stop_over=num_of_stopover,
+                    via_city=stopover_city,
+                )
+                # print(f"{flight_data.to_city}: ${flight_data.price}")
+                return flight_data
+        else: # direct flight
+            flight_data = FlightData(
+                origin_city=data["route"][0]["cityFrom"],
+                origin_airport_code=data["route"][0]["flyFrom"],
+                dest_city=data["route"][0]["cityTo"],
+                dest_airport_code=data["route"][0]["flyTo"],
+                # convert epoch time to human readable
+                outbound_date=time.strftime("%Y-%m-%d", time.gmtime(data["route"][0]["dTime"])),
+                return_date=time.strftime("%Y-%m-%d", time.gmtime(data["route"][1]["dTime"])),
+                price=data["price"],
+            )
+            # print(f"{flight_data.to_city}: ${flight_data.price}")
+            return flight_data
