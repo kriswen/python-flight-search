@@ -43,7 +43,7 @@ def main():
             # check for iata code
             row["iataCode"] = fs.get_dest_code(row["city"])
             # update new iataCode to gs for current row
-            # dm.update_row_data(row["id"])
+            dm.update_row_data(row["id"])
             print(f"update iata for {row["city"]} is {row["iataCode"]}")
         # else:
         #     print(f"current iata for {row["city"]} is {row["iataCode"]}")
@@ -79,7 +79,7 @@ def main():
                 msg += f"\nFlight has {flight.stop_over} stop over in {flight.via_city}."
 
             # send message to my telegram account
-            # notification_manager.send_msg(msg)
+            notification_manager.send_msg(msg)
 
             # send email to the subscribers on the Google sheet user list
             for user in user_manager.get_users_data():
