@@ -20,23 +20,22 @@ NIGHTS_IN_DEST_TO = 28
 
 
 def main():
-    # user_manager.get_user_data()
-    # print("Welcome to Kris's Flight Club.\nWe find the best flight deals and email you.")
-    # first_name = input("What is your first name?\n").title()
-    # last_name = input("What is your last name?\n").title()
-    # email = "temp1"
-    # email_confirm = "temp2"
-    # while email != email_confirm:
-    #     email = input("What is your email?\n").lower()
-    #     if email.lower() == "quite" or email.lower() == "exit":
-    #         exit()
-    #     email_confirm = input("Confirm your email again.\n").lower()
-    #     if email_confirm.lower() == "quite" or email_confirm.lower() == "exit":
-    #         exit()
-    # # add name to the Google sheet
-    # user_manager.add_user_data(first_name=first_name,
-    #                            last_name=last_name,
-    #                            email=email)
+    print("Welcome to Kris's Flight Club.\nWe find the best flight deals and email you.")
+    first_name = input("What is your first name?\n").title()
+    last_name = input("What is your last name?\n").title()
+    email = "temp1"
+    email_confirm = "temp2"
+    while email != email_confirm:
+        email = input("What is your email?\n").lower()
+        if email.lower() == "quite" or email.lower() == "exit":
+            exit()
+        email_confirm = input("Confirm your email again.\n").lower()
+        if email_confirm.lower() == "quite" or email_confirm.lower() == "exit":
+            exit()
+    # add name to the Google sheet
+    user_manager.add_user_data(first_name=first_name,
+                               last_name=last_name,
+                               email=email)
 
     for row in sheet_data:
         # check is iataCode is empty, if so, pass to FlightSearch class to update
@@ -44,7 +43,7 @@ def main():
             # check for iata code
             row["iataCode"] = fs.get_dest_code(row["city"])
             # update new iataCode to gs for current row
-            dm.update_row_data(row["id"])
+            # dm.update_row_data(row["id"])
             print(f"update iata for {row["city"]} is {row["iataCode"]}")
         # else:
         #     print(f"current iata for {row["city"]} is {row["iataCode"]}")
@@ -72,14 +71,22 @@ def main():
             continue
         # If the price is lower than the lowest price listed in the Google Sheet then send a telegram message
         if flight.price < destination["lowestPrice"]:
-            msg = (f"Sent from your telegram bot:\nLow price alert! Only ${flight.price} to fly from "
+            msg = (f"Sent from your flight alert bot:\nLow price alert! Only ${flight.price} to fly from "
                    f"{flight.from_city}-{flight.from_code} to {flight.to_city}-{flight.to_code}, "
                    f"from {flight.from_date} to {flight.to_date}")
 
             if flight.stop_over > 0:
                 msg += f"\nFlight has {flight.stop_over} stop over in {flight.via_city}."
 
-            notification_manager.send_msg(msg)
+            # send message to my telegram account
+            # notification_manager.send_msg(msg)
+
+            # send email to the subscribers on the Google sheet user list
+            for user in user_manager.get_users_data():
+                subscriber_name = f"{user["firstName"].title()} {user["lastName"].title()}"
+                subscriber_email = user["email"]
+                notification_manager.send_email(subscriber_name, subscriber_email, msg)
+                print("sending email to " + subscriber_name + " - " + subscriber_email)
 
 
 main()

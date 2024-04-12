@@ -30,6 +30,9 @@ To run this project, you need:
     SHEETY_ENDPOINT=your_sheety_endpoint
     TELEGRAM_BOT_TOKEN=your_telegram_bot_token
     TELEGRAM_CHAT_ID=your_chat_id
+    SHEETY_USER_ENDPOINT=your_sheety_user_endpoint
+    MY_EMAIL=your_email
+    MY_EMAIL_PASSWORD=your_email_app_password
 
 ## Usage
 1. Modify the main.py script with your desired settings, such as the departure city code, nights in destination, and any other parameters.

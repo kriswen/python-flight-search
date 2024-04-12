@@ -1,11 +1,16 @@
 import requests
 import os
 from dotenv import load_dotenv
+import smtplib
 
 load_dotenv()
 
 telegram_bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
 telegram_chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+email_sender = os.environ.get("MY_EMAIL")
+email_password = os.environ.get("MY_EMAIL_PASSWORD")
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
 
 
 class NotificationManager:
@@ -17,3 +22,11 @@ class NotificationManager:
                      '&parse_mode=Markdown&text=' + message)
         response = requests.get(send_text)
         return response.json()
+
+    def send_email(self, subscriber_name, subscriber_email, message):
+        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as connection:
+            connection.starttls()  # transfer layer security
+            connection.login(user=email_sender, password=email_password)
+            connection.sendmail(from_addr=email_sender,
+                                to_addrs=subscriber_email,
+                                msg=f"Subject: Flight Deal Alert!\n\nHi {subscriber_name}:\n{message}")

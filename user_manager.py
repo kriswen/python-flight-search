@@ -13,9 +13,9 @@ class UserManager:
     # This class is responsible for talking to the Google Sheet.
 
     def __init__(self):
-        self.user_data = None
+        self.users_data = None
 
-    def get_user_data(self):
+    def get_users_data(self):
         if USE_LIVE_API:
             response = requests.get(SHEETY_USER_ENDPOINT, headers=HEADERS)
             response.raise_for_status()
@@ -23,9 +23,9 @@ class UserManager:
         else:
             # sample result if trial api request is max out
             users = {'users': [{'firstName': 'kris', 'lastName': 'wen', 'email': '123@gmail.com', 'id': 2},
-                               {'firstName': 'peter', 'lastName': 'pan', 'id': 3}]}
-        self.user_data = users['users']
-        return self.user_data
+                               {'firstName': 'peter', 'lastName': 'pan', 'email': '456@gmail.com', 'id': 3}]}
+        self.users_data = users['users']
+        return self.users_data
 
     def add_user_data(self, first_name, last_name, email):
         user_data = {
